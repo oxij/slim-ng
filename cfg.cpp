@@ -62,6 +62,7 @@ Cfg::Cfg() : currentSession(-1)
 	options.insert(option("reboot_msg", "The system is rebooting..."));
 	options.insert(option("sessiondir", ""));
 	options.insert(option("hidecursor", "false"));
+	options.insert(option("allow_exit", "true"));
 
 	/* Theme stuff */
 	options.insert(option("input_panel_x", "50%"));

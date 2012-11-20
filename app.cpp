@@ -779,6 +779,8 @@ void App::Console()
 
 void App::Exit()
 {
+	if (cfg->getOption("allow_exit") == "false")
+		return;
 #ifdef USE_PAM
 	try {
 		pam.end();
