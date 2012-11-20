@@ -138,17 +138,12 @@ App::App(int argc, char ** argv)
 App::App(int argc, char ** argv)
 	:
 #endif
-	  mcookiesize(32) /* Must be divisible by 4 */
+	  mcookiesize(32), // Must be divisible by 4
+	  ServerPID(-1), testing(false), serverStarted(false),
+	  mcookie(string(App::mcookiesize, 'a')), daemonmode(false),
+	  force_nodaemon(false), firstlogin(true), Dpy(NULL)
 {
 	int tmp;
-	ServerPID = -1;
-	testing = false;
-	serverStarted = false;
-	mcookie = string(App::mcookiesize, 'a');
-	daemonmode = false;
-	force_nodaemon = false;
-	firstlogin = true;
-	Dpy = NULL;
 
 	/* Parse command line
 	   Note: we force a option for nodaemon switch to handle "-nodaemon" */

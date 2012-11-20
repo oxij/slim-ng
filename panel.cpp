@@ -19,16 +19,9 @@ using namespace std;
 
 Panel::Panel(Display * dpy, int scr, Window root, Cfg * config,
 	const string & themedir, PanelType panel_mode)
+	: Dpy(dpy), Scr(scr), Root(root), cfg(config), mode(panel_mode),
+	  session_name(""), session_exec("")
 {
-	/* Set display */
-	Dpy = dpy;
-	Scr = scr;
-	Root = root;
-	cfg = config;
-	mode = panel_mode;
-
-	session_name = "";
-	session_exec = "";
 	if (mode == Mode_Lock) {
 		Win = root;
 		viewport = GetPrimaryViewport();
