@@ -12,6 +12,7 @@
 
 #include "panel.h"
 #include <X11/extensions/Xrandr.h>
+#include <libgen.h>
 #include <poll.h>
 #include <sstream>
 
