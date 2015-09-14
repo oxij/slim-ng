@@ -818,9 +818,15 @@ void App::RestartServer()
 
 	StopServer();
 	RemoveLock();
-	while (waitpid(-1, NULL, WNOHANG) > 0)
-		; /* Collects all dead childrens */
-	Run();
+	if (force_nodaemon) {
+		delete LoginPanel;
+		exit(ERR_EXIT); /* use ERR_EXIT so that systemd's RESTART=on-failure
+						   works */
+	} else {
+		while (waitpid(-1, NULL, WNOHANG) > 0)
+			; // Collects all dead childrens
+		Run();
+	}
 }
 
 void App::KillAllClients(Bool top)
