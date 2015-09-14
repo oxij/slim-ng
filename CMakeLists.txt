@@ -96,7 +96,6 @@ find_package(X11 REQUIRED)
 find_package(Freetype REQUIRED)
 find_package(JPEG REQUIRED)
 find_package(PNG REQUIRED)
-find_package(ZLIB REQUIRED)
 
 # Fontconfig
 set(FONTCONFIG_DIR ${CMAKE_MODULE_PATH})
