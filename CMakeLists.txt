@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.6.0 FATAL_ERROR)
+cmake_minimum_required(VERSION 2.8.8 FATAL_ERROR)
 
 set(PROJECT_NAME slim)
 project(${PROJECT_NAME})
