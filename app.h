@@ -90,6 +90,7 @@ private:
 #endif
 #ifdef USE_CONSOLEKIT
 	Ck::Session ck;
+	bool consolekit_support_enabled;
 #endif
 
 	/* Options */
