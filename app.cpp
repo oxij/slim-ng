@@ -300,6 +300,19 @@ void App::Run()
 
 		CreateServerAuth();
 		StartServer();
+
+		// Run setup script
+		if (cfg->getOption("xsetup_script") != "") {
+			const char * xsetup_cmd = cfg->getOption("xsetup_script").c_str();
+			logStream << APPNAME << ": executing xsetup script '" << xsetup_cmd
+					  << "'" << endl;
+			char * tmp = new char[strlen(xsetup_cmd) + 60];
+			sprintf(tmp, xsetup_cmd);
+			system(tmp);
+			delete[] tmp;
+			logStream << APPNAME << ": xsetup script '" << xsetup_cmd
+					  << "' finished." << endl;
+		}
 #endif
 	}
 

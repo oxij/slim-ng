@@ -42,6 +42,7 @@ Cfg::Cfg() : currentSession(-1)
 	options.insert(option("suspend_cmd", ""));
 	options.insert(option("sessionstart_cmd", ""));
 	options.insert(option("sessionstop_cmd", ""));
+	options.insert(option("xsetup_script", ""));
 	options.insert(option("console_cmd",
 		"/usr/bin/xterm -C -fg white -bg black +sb -g %dx%d+%d+%d -fn %dx%d -T "
 		"Console login"
