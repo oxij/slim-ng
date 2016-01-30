@@ -10,6 +10,7 @@
  * (at your option) any later version.
  */
 
+#include <algorithm>
 #include <fstream>
 #include <iostream>
 #include <stdlib.h>
@@ -360,6 +361,11 @@ void Cfg::fillSessionList()
 			closedir(pDir);
 		}
 	}
+
+	std::sort(sessions.begin(), sessions.end(),
+		[](pair<string, string> & a, pair<string, string> & b) -> bool {
+			return a.first < b.first;
+		});
 
 	if (sessions.empty()) {
 		if (strSessionList.empty()) {
