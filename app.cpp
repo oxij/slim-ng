@@ -131,16 +131,13 @@ void CatchSignal(int sig)
 
 void User1Signal(int sig) { signal(sig, User1Signal); }
 
-#ifdef USE_PAM
-App::App(int argc, char ** argv)
-	: pam(conv, static_cast<void *>(&LoginPanel)),
-#else
 App::App(int argc, char ** argv)
 	:
+#ifdef USE_PAM
+	  pam(conv, static_cast<void *>(&LoginPanel)),
 #endif
-	  mcookiesize(32), // Must be divisible by 4
 	  ServerPID(-1), testing(false), serverStarted(false),
-	  mcookie(string(App::mcookiesize, 'a')), daemonmode(false),
+	  mcookie(string(MCOOKIESIZE, 'a')), daemonmode(false),
 	  force_nodaemon(false),
 #ifdef USE_CONSOLEKIT
 	  consolekit_support_enabled(true),
@@ -1278,7 +1275,7 @@ void App::CreateServerAuth()
 	string authfile;
 	const char * digits = "0123456789abcdef";
 	Util::srandom(Util::makeseed());
-	for (i = 0; i < App::mcookiesize; i += 4) {
+	for (i = 0; i < MCOOKIESIZE; i += 4) {
 		word = Util::random() & 0xffff;
 		lo = word & 0xff;
 		hi = word >> 8;
