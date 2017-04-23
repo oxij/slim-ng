@@ -1,4 +1,5 @@
 #include "log.h"
+#include <cstring>
 #include <iostream>
 
 bool LogUnit::openLog(const char * filename)
@@ -9,8 +10,12 @@ bool LogUnit::openLog(const char * filename)
 			 << endl;
 		logFile.close();
 	}
-	logFile.open(filename, ios_base::app);
 
+	// cerr is the default
+	if (strcmp(filename, "/dev/stderr") == 0)
+		return true;
+
+	logFile.open(filename, ios_base::app);
 	return !(logFile.fail());
 }
 
