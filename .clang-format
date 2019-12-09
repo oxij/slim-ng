@@ -1,0 +1,10 @@
+BasedOnStyle: LLVM
+IndentWidth: 4
+TabWidth: 4
+UseTab: Always
+AccessModifierOffset: -4
+AlignAfterOpenBracket: DontAlign
+BreakBeforeBraces: Linux
+NamespaceIndentation: All
+DerivePointerAlignment: false
+PointerAlignment: Middle
