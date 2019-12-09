@@ -14,6 +14,7 @@ INCLUDE(CheckIncludeFile)
 INCLUDE(CheckCCompilerFlag)
 INCLUDE(CheckCXXCompilerFlag)
 INCLUDE(CheckTypeSize)
+INCLUDE(GNUInstallDirs)
 
 # Version
 set(SLIM_VERSION_MAJOR "1")
@@ -21,11 +22,8 @@ set(SLIM_VERSION_MINOR "3")
 set(SLIM_VERSION_PATCH "6")
 set(SLIM_VERSION "${SLIM_VERSION_MAJOR}.${SLIM_VERSION_MINOR}.${SLIM_VERSION_PATCH}")
 
-set(CMAKE_INSTALL_PREFIX "/usr/local" CACHE PATH "Installation Directory")
-set(PKGDATADIR "${CMAKE_INSTALL_PREFIX}/share/slim")
+set(PKGDATADIR "${CMAKE_INSTALL_FULL_DATADIR}/slim")
 set(SYSCONFDIR "/etc")
-set(LIBDIR "/lib")
-set(MANDIR "${CMAKE_INSTALL_PREFIX}/share/man")
 
 set(SLIM_DEFINITIONS)
 if(${CMAKE_SYSTEM_NAME} MATCHES "FreeBSD" OR
@@ -214,9 +212,9 @@ endif(BUILD_SLIMLOCK)
 
 ####### install
 # slim
-install(TARGETS slim RUNTIME DESTINATION bin)
+install(TARGETS slim RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 if(BUILD_SLIMLOCK)
-install(TARGETS slimlock RUNTIME DESTINATION bin)
+install(TARGETS slimlock RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif(BUILD_SLIMLOCK)
 
 if (BUILD_SHARED_LIBS)
@@ -225,21 +223,21 @@ if (BUILD_SHARED_LIBS)
 		SOVERSION ${SLIM_VERSION})
 
 	install(TARGETS libslim
-		LIBRARY DESTINATION lib
-		ARCHIVE DESTINATION lib
+		LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+		ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
 	)
 endif (BUILD_SHARED_LIBS)
 
 # man file
-install(FILES slim.1 DESTINATION ${MANDIR}/man1/)
+install(FILES slim.1 DESTINATION ${CMAKE_INSTALL_MANDIR}/man1)
 if(BUILD_SLIMLOCK)
-install(FILES slimlock.1 DESTINATION ${MANDIR}/man1/)
+install(FILES slimlock.1 DESTINATION ${CMAKE_INSTALL_MANDIR}/man1)
 endif(BUILD_SLIMLOCK)
 # configure
-install(FILES slim.conf DESTINATION ${SYSCONFDIR})
+install(FILES slim.conf DESTINATION ${CMAKE_INSTALL_SYSCONFDIR})
 # systemd service file
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-	install(FILES slim.service DESTINATION ${LIBDIR}/systemd/system)
+	install(FILES slim.service DESTINATION ${CMAKE_INSTALL_LIBDIR}/systemd/system)
 endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 # themes directory
 subdirs(themes)
