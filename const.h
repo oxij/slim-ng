@@ -12,7 +12,6 @@
 #ifndef _CONST_H_
 #define _CONST_H_
 
-#define APPNAME "slim"
 #define DISPLAY ":0.0"
 
 #define CONSOLE_STR "console"
