@@ -291,7 +291,7 @@ void Panel::WrongPassword(int timeout)
 
 	XftDraw * draw = XftDrawCreate(
 		Dpy, Win, DefaultVisual(Dpy, Scr), DefaultColormap(Dpy, Scr));
-	XftTextExtents8(Dpy, msgfont,
+	XftTextExtentsUtf8(Dpy, msgfont,
 		reinterpret_cast<const XftChar8 *>(message.c_str()), message.length(),
 		&extents);
 
@@ -336,7 +336,7 @@ void Panel::Message(const string & text)
 		draw = XftDrawCreate(
 			Dpy, Root, DefaultVisual(Dpy, Scr), DefaultColormap(Dpy, Scr));
 
-	XftTextExtents8(Dpy, msgfont,
+	XftTextExtentsUtf8(Dpy, msgfont,
 		reinterpret_cast<const XftChar8 *>(text.c_str()), text.length(),
 		&extents);
 	cfgX = cfg->getOption("msg_x");
@@ -417,10 +417,10 @@ void Panel::Cursor(int visible)
 	}
 
 	XGlyphInfo extents;
-	XftTextExtents8(Dpy, font, (XftChar8 *)txth, strlen(txth), &extents);
+	XftTextExtentsUtf8(Dpy, font, (XftChar8 *)txth, strlen(txth), &extents);
 	cheight = extents.height;
 	y2 = yy - extents.y + extents.height;
-	XftTextExtents8(Dpy, font, (XftChar8 *)text, strlen(text), &extents);
+	XftTextExtentsUtf8(Dpy, font, (XftChar8 *)text, strlen(text), &extents);
 	xx += extents.width;
 
 	if (visible == SHOW) {
@@ -656,11 +656,11 @@ bool Panel::OnKeyPress(XEvent & event)
 
 	if (!formerString.empty()) {
 		const char * txth = "Wj"; /* get proper maximum height ? */
-		XftTextExtents8(Dpy, font, reinterpret_cast<const XftChar8 *>(txth),
+		XftTextExtentsUtf8(Dpy, font, reinterpret_cast<const XftChar8 *>(txth),
 			strlen(txth), &extents);
 		int maxHeight = extents.height;
 
-		XftTextExtents8(Dpy, font,
+		XftTextExtentsUtf8(Dpy, font,
 			reinterpret_cast<const XftChar8 *>(formerString.c_str()),
 			formerString.length(), &extents);
 		int maxLength = extents.width;
@@ -695,7 +695,7 @@ void Panel::ShowText()
 	XftDraw * draw = XftDrawCreate(
 		Dpy, Win, DefaultVisual(Dpy, Scr), DefaultColormap(Dpy, Scr));
 	/* welcome message */
-	XftTextExtents8(Dpy, welcomefont, (XftChar8 *)welcome_message.c_str(),
+	XftTextExtentsUtf8(Dpy, welcomefont, (XftChar8 *)welcome_message.c_str(),
 		strlen(welcome_message.c_str()), &extents);
 	cfgX = cfg->getOption("welcome_x");
 	cfgY = cfg->getOption("welcome_y");
@@ -713,7 +713,7 @@ void Panel::ShowText()
 	string msg;
 	if ((!singleInputMode || field == Get_Passwd) && mode == Mode_DM) {
 		msg = cfg->getOption("password_msg");
-		XftTextExtents8(Dpy, enterfont, (XftChar8 *)msg.c_str(),
+		XftTextExtentsUtf8(Dpy, enterfont, (XftChar8 *)msg.c_str(),
 			strlen(msg.c_str()), &extents);
 		cfgX = cfg->getOption("password_x");
 		cfgY = cfg->getOption("password_y");
@@ -730,7 +730,7 @@ void Panel::ShowText()
 
 	if (!singleInputMode || field == Get_Name) {
 		msg = cfg->getOption("username_msg");
-		XftTextExtents8(Dpy, enterfont, (XftChar8 *)msg.c_str(),
+		XftTextExtentsUtf8(Dpy, enterfont, (XftChar8 *)msg.c_str(),
 			strlen(msg.c_str()), &extents);
 		cfgX = cfg->getOption("username_x");
 		cfgY = cfg->getOption("username_y");
@@ -782,7 +782,7 @@ void Panel::ShowSession()
 
 	XftDraw * draw = XftDrawCreate(
 		Dpy, Root, DefaultVisual(Dpy, Scr), DefaultColormap(Dpy, Scr));
-	XftTextExtents8(Dpy, sessionfont,
+	XftTextExtentsUtf8(Dpy, sessionfont,
 		reinterpret_cast<const XftChar8 *>(currsession.c_str()),
 		currsession.length(), &extents);
 	msg_x = cfg->getOption("session_x");

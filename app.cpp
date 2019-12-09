@@ -818,7 +818,7 @@ void App::Exit()
 #endif
 
 	if (testing) {
-		const char * testmsg = "This is a test message :-)";
+		const char * testmsg = "¥·£·€·$·¢·₡·₢·₣·₤·₥·₦·₧·₨·₩·₪·₫·₭·₮·₯·₹";
 		LoginPanel->Message(testmsg);
 		sleep(3);
 		delete LoginPanel;
