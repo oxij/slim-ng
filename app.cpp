@@ -393,11 +393,15 @@ void App::Run()
 			LoginPanel->SwitchSession();
 		}
 
-		if (!AuthenticateUser(focuspass && firstloop)) {
+		if (testing) {
+			LoginPanel->EventHandler(Panel::Get_Name);
+			LoginPanel->EventHandler(Panel::Get_Passwd);
+		} else if (!AuthenticateUser(focuspass && firstloop)) {
 			panelclosed = 0;
 			firstloop = false;
 			LoginPanel->ClearPanel();
 			XBell(Dpy, 100);
+			sleep(1); // Just in case, to prevent infinite loops without pauses
 			continue;
 		}
 
