@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8.8 FATAL_ERROR)
 
-set(PROJECT_NAME slim)
+set(PROJECT_NAME slim-ng)
 project(${PROJECT_NAME})
 
 #Pretty colors
@@ -19,7 +19,7 @@ INCLUDE(GNUInstallDirs)
 # Version
 set(SLIM_VERSION_MAJOR "1")
 set(SLIM_VERSION_MINOR "3")
-set(SLIM_VERSION_PATCH "6")
+set(SLIM_VERSION_PATCH "7")
 set(SLIM_VERSION "${SLIM_VERSION_MAJOR}.${SLIM_VERSION_MINOR}.${SLIM_VERSION_PATCH}")
 
 set(PKGDATADIR "${CMAKE_INSTALL_FULL_DATADIR}/slim")
@@ -82,7 +82,7 @@ if(USE_CONSOLEKIT)
 	set(slim_srcs ${slim_srcs} Ck.cpp)
 endif(USE_CONSOLEKIT)
 
-add_executable(${PROJECT_NAME} ${slim_srcs})
+add_executable(slim ${slim_srcs})
 if(BUILD_SLIMLOCK)
     add_executable(slimlock ${slimlock_srcs})
 endif(BUILD_SLIMLOCK)
@@ -100,7 +100,7 @@ set(FONTCONFIG_DIR ${CMAKE_MODULE_PATH})
 find_package(FONTCONFIG REQUIRED)
 if(FONTCONFIG_FOUND)
 	message("\tFontConfig Found")
-	target_link_libraries(${PROJECT_NAME} ${FONTCONFIG_LIBRARY})
+	target_link_libraries(slim ${FONTCONFIG_LIBRARY})
 	include_directories(${FONTCONFIG_INCLUDE_DIR})
 endif(FONTCONFIG_FOUND)
 
@@ -111,7 +111,7 @@ if(USE_PAM)
 	if(PAM_FOUND)
 		message("\tPAM Found")
 		set(SLIM_DEFINITIONS ${SLIM_DEFINITIONS} "-DUSE_PAM")
-		target_link_libraries(${PROJECT_NAME} ${PAM_LIBRARY})
+		target_link_libraries(slim ${PAM_LIBRARY})
 		target_link_libraries(slimlock ${PAM_LIBRARY})
 		include_directories(${PAM_INCLUDE_DIR})
 	else(PAM_FOUND)
@@ -131,11 +131,11 @@ if(USE_CONSOLEKIT)
 		find_package(DBus REQUIRED)
 		if(DBUS_FOUND)
 			message("\tDBus Found")
-			target_link_libraries(${PROJECT_NAME} ${DBUS_LIBRARIES})
+			target_link_libraries(slim ${DBUS_LIBRARIES})
 			include_directories(${DBUS_ARCH_INCLUDE_DIR})
 			include_directories(${DBUS_INCLUDE_DIR})
 			set(SLIM_DEFINITIONS ${SLIM_DEFINITIONS} "-DUSE_CONSOLEKIT")
-			target_link_libraries(${PROJECT_NAME} ${CKCONNECTOR_LIBRARIES})
+			target_link_libraries(slim ${CKCONNECTOR_LIBRARIES})
 			include_directories(${CKCONNECTOR_INCLUDE_DIR})
 		else(DBUS_FOUND)
 			message("\tDBus Not Found")
@@ -175,7 +175,7 @@ target_link_libraries(libslim
 )
 
 #Set up library with all found packages for slim
-target_link_libraries(${PROJECT_NAME}
+target_link_libraries(slim
 	${M_LIB}
 	${RT_LIB}
 	${CRYPTO_LIB}
