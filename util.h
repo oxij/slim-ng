@@ -11,14 +11,15 @@
 
 #include <string>
 
-namespace Util {
-	bool add_mcookie(const std::string &mcookie, const char *display,
-		const std::string &xauth_cmd, const std::string &authfile);
+namespace Util
+{
+	bool add_mcookie(const std::string & mcookie, const char * display,
+		const std::string & xauth_cmd, const std::string & authfile);
 
 	void srandom(unsigned long seed);
 	long random(void);
 
 	long makeseed(void);
-}
+} // namespace Util
 
 #endif /* _UTIL_H__ */

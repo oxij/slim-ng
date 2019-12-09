@@ -1,4 +1,5 @@
-/* SLiM - Simple Login Manager
+/*
+ *  SLiM - Simple Login Manager
  *  Copyright (C) 1997, 1998 Per Liden
  *  Copyright (C) 2004-06 Simone Rota <sip@varlock.com>
  *  Copyright (C) 2004-06 Johannes Winkelmann <jw@tks6.net>
@@ -12,18 +13,18 @@
 #ifndef _APP_H_
 #define _APP_H_
 
-#include <X11/Xlib.h>
-#include <X11/Xatom.h>
-#include <signal.h>
-#include <unistd.h>
-#include <sys/wait.h>
-#include <errno.h>
-#include <setjmp.h>
-#include <stdlib.h>
-#include <iostream>
-#include "panel.h"
 #include "cfg.h"
 #include "image.h"
+#include "panel.h"
+#include <X11/Xatom.h>
+#include <X11/Xlib.h>
+#include <errno.h>
+#include <iostream>
+#include <setjmp.h>
+#include <signal.h>
+#include <stdlib.h>
+#include <sys/wait.h>
+#include <unistd.h>
 
 #ifdef USE_PAM
 #include "PAM.h"
@@ -32,9 +33,10 @@
 #include "Ck.h"
 #endif
 
-class App {
+class App
+{
 public:
-	App(int argc, char **argv);
+	App(int argc, char ** argv);
 	~App();
 	void Run();
 	int GetServerPID();
@@ -60,28 +62,27 @@ private:
 	void CloseLog();
 	void HideCursor();
 	void CreateServerAuth();
-	char *StrConcat(const char *str1, const char *str2);
+	char * StrConcat(const char * str1, const char * str2);
 	void UpdatePid();
 
 	bool AuthenticateUser(bool focuspass);
 
-	static std::string findValidRandomTheme(const std::string &set);
-	static void replaceVariables(std::string &input,
-								 const std::string &var,
-								 const std::string &value);
+	static std::string findValidRandomTheme(const std::string & set);
+	static void replaceVariables(std::string & input, const std::string & var,
+		const std::string & value);
 
 	/* Server functions */
 	int StartServer();
-	int ServerTimeout(int timeout, char *string);
+	int ServerTimeout(int timeout, char * string);
 	int WaitForServer();
 
 	/* Private data */
 	Window Root;
-	Display *Dpy;
+	Display * Dpy;
 	int Scr;
-	Panel *LoginPanel;
+	Panel * LoginPanel;
 	int ServerPID;
-	const char *DisplayName;
+	const char * DisplayName;
 	bool serverStarted;
 
 #ifdef USE_PAM
@@ -92,22 +93,22 @@ private:
 #endif
 
 	/* Options */
-	char *DispName;
+	char * DispName;
 
-	Cfg *cfg;
+	Cfg * cfg;
 
 	Pixmap BackgroundPixmap;
 
 	void blankScreen();
-	Image *image;
+	Image * image;
 	Atom BackgroundPixmapId;
-	void setBackground(const std::string &themedir);
+	void setBackground(const std::string & themedir);
 
 	bool firstlogin;
 	bool daemonmode;
 	bool force_nodaemon;
 	/* For testing themes */
-	char *testtheme;
+	char * testtheme;
 	bool testing;
 
 	std::string themeName;

@@ -2,7 +2,7 @@
 #define _LOG_H_
 
 #ifdef USE_CONSOLEKIT
-#include "Ck.h" 
+#include "Ck.h"
 #endif
 #ifdef USE_PAM
 #include "PAM.h"
@@ -12,27 +12,34 @@
 
 using namespace std;
 
-static class LogUnit {
+static class LogUnit
+{
 	ofstream logFile;
+
 public:
 	bool openLog(const char * filename);
 	void closeLog();
 
 	~LogUnit() { closeLog(); }
 
-	template<typename Type>
-	LogUnit & operator<<(const Type & text) {
-		logFile << text; logFile.flush();
+	template <typename Type> LogUnit & operator<<(const Type & text)
+	{
+		logFile << text;
+		logFile.flush();
 		return *this;
 	}
 
-	LogUnit & operator<<(ostream & (*fp)(ostream&)) {
-		logFile << fp; logFile.flush();
+	LogUnit & operator<<(ostream & (*fp)(ostream &))
+	{
+		logFile << fp;
+		logFile.flush();
 		return *this;
 	}
 
-	LogUnit & operator<<(ios_base & (*fp)(ios_base&)) {
-		logFile << fp; logFile.flush();
+	LogUnit & operator<<(ios_base & (*fp)(ios_base &))
+	{
+		logFile << fp;
+		logFile.flush();
 		return *this;
 	}
 } logStream;

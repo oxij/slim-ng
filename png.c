@@ -21,15 +21,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <string.h>
-#include <unistd.h>
-#include <sys/socket.h>
-#include <png.h>
 #include "const.h"
+#include <png.h>
+#include <string.h>
+#include <sys/socket.h>
+#include <unistd.h>
 
-int
-read_png(const char *filename, int *width, int *height, unsigned char **rgb,
-	 unsigned char **alpha)
+int read_png(const char * filename, int * width, int * height,
+	unsigned char ** rgb, unsigned char ** alpha)
 {
 	int ret = 0;
 
@@ -37,29 +36,25 @@ read_png(const char *filename, int *width, int *height, unsigned char **rgb,
 	png_infop info_ptr;
 	png_bytepp row_pointers;
 
-	unsigned char *ptr = NULL;
+	unsigned char * ptr = NULL;
 	png_uint_32 w, h;
 	int bit_depth, color_type, interlace_type;
 	int i;
 
-	FILE *infile = fopen(filename, "rb");
+	FILE * infile = fopen(filename, "rb");
 	if (infile == NULL) {
 		fprintf(stderr, "Can not fopen file: %s\n", filename);
 		return ret;
 	}
 
-	png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING,
-						(png_voidp)NULL,
-						(png_error_ptr)NULL,
-						(png_error_ptr)NULL);
+	png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, (png_voidp)NULL,
+		(png_error_ptr)NULL, (png_error_ptr)NULL);
 	if (!png_ptr)
 		goto file_close;
 
 	info_ptr = png_create_info_struct(png_ptr);
 	if (!info_ptr) {
-		png_destroy_read_struct(&png_ptr,
-						(png_infopp)NULL,
-						(png_infopp)NULL);
+		png_destroy_read_struct(&png_ptr, (png_infopp)NULL, (png_infopp)NULL);
 	}
 
 #if PNG_LIBPNG_VER_MAJOR >= 1 && PNG_LIBPNG_VER_MINOR >= 4
@@ -73,20 +68,19 @@ read_png(const char *filename, int *width, int *height, unsigned char **rgb,
 	png_read_info(png_ptr, info_ptr);
 
 	png_get_IHDR(png_ptr, info_ptr, &w, &h, &bit_depth, &color_type,
-				 &interlace_type, (int *) NULL, (int *) NULL);
+		&interlace_type, (int *)NULL, (int *)NULL);
 
 	/* Prevent against integer overflow */
 	if (w >= MAX_DIMENSION || h >= MAX_DIMENSION) {
-		fprintf(stderr,
-			"Unreasonable dimension found in file: %s\n", filename);
+		fprintf(stderr, "Unreasonable dimension found in file: %s\n", filename);
 		goto png_destroy;
 	}
 
-	*width = (int) w;
-	*height = (int) h;
+	*width = (int)w;
+	*height = (int)h;
 
-	if (color_type == PNG_COLOR_TYPE_RGB_ALPHA
-		|| color_type == PNG_COLOR_TYPE_GRAY_ALPHA) {
+	if (color_type == PNG_COLOR_TYPE_RGB_ALPHA ||
+		color_type == PNG_COLOR_TYPE_GRAY_ALPHA) {
 		alpha[0] = malloc(*width * *height);
 		if (alpha[0] == NULL) {
 			fprintf(stderr,
@@ -120,8 +114,7 @@ read_png(const char *filename, int *width, int *height, unsigned char **rgb,
 	for (i = 0; i < *height; i++) {
 		row_pointers[i] = malloc(4 * *width);
 		if (row_pointers == NULL) {
-			fprintf(stderr,
-				"Can't allocate memory for PNG line.\n");
+			fprintf(stderr, "Can't allocate memory for PNG line.\n");
 			goto rows_free;
 		}
 	}
@@ -149,8 +142,7 @@ read_png(const char *filename, int *width, int *height, unsigned char **rgb,
 				*ptr++ = row_pointers[i][ipos++];
 				*ptr++ = row_pointers[i][ipos++];
 				*ptr++ = row_pointers[i][ipos++];
-				alpha[0][i * *width + j]
-					= row_pointers[i][ipos++];
+				alpha[0][i * *width + j] = row_pointers[i][ipos++];
 			}
 		}
 	}
@@ -166,7 +158,7 @@ rows_free:
 	free(row_pointers);
 
 png_destroy:
-	png_destroy_read_struct(&png_ptr, &info_ptr, (png_infopp) NULL);
+	png_destroy_read_struct(&png_ptr, &info_ptr, (png_infopp)NULL);
 
 file_close:
 	fclose(infile);

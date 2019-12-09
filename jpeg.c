@@ -21,21 +21,21 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <jpeglib.h>
 #include "const.h"
+#include <jpeglib.h>
 
-int
-read_jpeg(const char *filename, int *width, int *height, unsigned char **rgb)
+int read_jpeg(
+	const char * filename, int * width, int * height, unsigned char ** rgb)
 {
 	int ret = 0;
 	struct jpeg_decompress_struct cinfo;
 	struct jpeg_error_mgr jerr;
-	unsigned char *ptr = NULL;
+	unsigned char * ptr = NULL;
 	unsigned int i, ipos;
 
-	FILE *infile = fopen(filename, "rb");
+	FILE * infile = fopen(filename, "rb");
 	if (infile == NULL) {
-		fprintf(stderr, "Can not fopen file: %s\n",filename);
+		fprintf(stderr, "Can not fopen file: %s\n", filename);
 		return ret;
 	}
 
@@ -46,8 +46,9 @@ read_jpeg(const char *filename, int *width, int *height, unsigned char **rgb)
 	jpeg_start_decompress(&cinfo);
 
 	/* Prevent against integer overflow */
-	if(cinfo.output_width >= MAX_DIMENSION || cinfo.output_height >= MAX_DIMENSION) {
-		fprintf(stderr, "Unreasonable dimension found in file: %s\n",filename);
+	if (cinfo.output_width >= MAX_DIMENSION ||
+		cinfo.output_height >= MAX_DIMENSION) {
+		fprintf(stderr, "Unreasonable dimension found in file: %s\n", filename);
 		goto close_file;
 	}
 
@@ -98,5 +99,5 @@ close_file:
 	jpeg_destroy_decompress(&cinfo);
 	fclose(infile);
 
-	return(ret);
+	return (ret);
 }
