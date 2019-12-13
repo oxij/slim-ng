@@ -232,7 +232,7 @@ void App::Run()
 	if (testing) {
 		themeName = testtheme;
 	} else {
-		themebase = string(THEMESDIR) + "/";
+		themebase = cfg.getOption("themes_dir") + "/";
 		themeName = cfg.getOption("current_theme");
 		string::size_type pos;
 		if ((pos = themeName.find(",")) != string::npos) {
@@ -1252,7 +1252,7 @@ string App::findValidRandomTheme(const string & set)
 		int sel = Util::random() % themes.size();
 
 		name = Cfg::Trim(themes[sel]);
-		themefile = string(THEMESDIR) + "/" + name + THEMESFILE;
+		themefile = cfg.getOption("themes_dir") + "/" + name + THEMESFILE;
 		if (stat(themefile.c_str(), &buf) != 0) {
 			themes.erase(find(themes.begin(), themes.end(), name));
 			logStream << APPNAME << ": Invalid theme in config: " << name

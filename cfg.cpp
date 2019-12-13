@@ -56,6 +56,7 @@ Cfg::Cfg() : currentSession(-1)
 	options.insert(option("default_user", ""));
 	options.insert(option("focus_password", "no"));
 	options.insert(option("auto_login", "no"));
+	options.insert(option("themes_dir", PKGDATADIR "/themes"));
 	options.insert(option("current_theme", "default"));
 	options.insert(option("lockfile", "/var/run/slim.lock"));
 	options.insert(option("logfile", "/dev/stderr"));

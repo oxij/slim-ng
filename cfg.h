@@ -19,7 +19,6 @@
 #define INPUT_MAXLENGTH_PASSWD 50
 
 #define CFGFILE SYSCONFDIR "/slim.conf"
-#define THEMESDIR PKGDATADIR "/themes"
 #define THEMESFILE "/slim.theme"
 
 class Cfg

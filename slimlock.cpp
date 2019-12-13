@@ -112,7 +112,7 @@ int main(int argc, char ** argv)
 	string themefile = "";
 	string themedir = "";
 	themeName = "";
-	themebase = string(THEMESDIR) + "/";
+	themebase = cfg.getOption("themes_dir") + "/";
 	themeName = cfg.getOption("current_theme");
 	string::size_type pos;
 	if ((pos = themeName.find(",")) != string::npos) {
