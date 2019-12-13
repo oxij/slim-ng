@@ -3,7 +3,7 @@ Description=SLiM Simple Login Manager
 After=systemd-user-sessions.service
 
 [Service]
-ExecStart=/usr/bin/slim -nodaemon -s
+ExecStart=/usr/bin/slim -n -s
 Restart=on-failure
 
 [Install]
