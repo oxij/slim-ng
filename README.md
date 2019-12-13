@@ -76,10 +76,6 @@ https://gitweb.gentoo.org/proj/musl.git/tree/x11-misc/slim/files, and
 https://github.com/NixOS/nixpkgs were applied on top. Most patches
 were edited to keep the original code style of SLiM.
 
-At the moment, the development is done in a set of `cleanup/*`
-branches. The `master` branch will be reset to the latest version
-after I'm done there.
-
 # Copyright
 
 SLiM is copyright (c) 2004-2019 by Simone Rota, Johannes Winkelmann,
