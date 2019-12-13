@@ -215,14 +215,11 @@ App::App(int argc, char ** argv)
 void App::Run()
 {
 	DisplayName = DISPLAY;
-
-#ifdef XNEST_DEBUG
 	char * p = getenv("DISPLAY");
 	if (p && p[0]) {
 		DisplayName = p;
 		cout << "Using display name " << DisplayName << endl;
 	}
-#endif
 
 	/* Read theme */
 	string themebase = "";
