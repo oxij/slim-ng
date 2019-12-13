@@ -53,7 +53,7 @@ public:
 
 	enum PanelType { Mode_DM, Mode_Lock };
 
-	Panel(Display * dpy, int scr, Window root, Cfg * config,
+	Panel(Display * dpy, int scr, Window root, Cfg & config,
 		const std::string & themed, PanelType panel_mode);
 	~Panel();
 	void OpenPanel();
@@ -93,7 +93,7 @@ private:
 
 	/* Private data */
 	PanelType mode; /* work mode */
-	Cfg * cfg;
+	Cfg & cfg;
 	Window Win;
 	Window Root;
 	Display * Dpy;

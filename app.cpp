@@ -145,11 +145,20 @@ App::App(int argc, char ** argv)
 	  firstlogin(true), Dpy(NULL)
 {
 	int tmp;
+	bool configLoaded = false;
 
 	/* Parse command line
 	   Note: we force a option for nodaemon switch to handle "-nodaemon" */
-	while ((tmp = getopt(argc, argv, "vhsp:n:d?")) != EOF) {
+	while ((tmp = getopt(argc, argv, "c:p:ndsh?")) != EOF) {
 		switch (tmp) {
+		case 'c': /* Config */
+			if (optarg == NULL) {
+				logStream << "The -c option requires an argument" << endl;
+				exit(ERR_EXIT);
+			}
+			cfg.readConf(optarg);
+			configLoaded = true;
+			break;
 		case 'p': /* Test theme */
 			testtheme = optarg;
 			testing = true;
@@ -179,8 +188,9 @@ App::App(int argc, char ** argv)
 		case 'h': /* Help */
 			logStream << "usage:  " << APPNAME << " [option ...]" << endl
 					  << "options:" << endl
+					  << "	-c file: configuration file" << endl
 					  << "	-d: daemon mode" << endl
-					  << "	-nodaemon: no-daemon mode" << endl
+					  << "	-n: no-daemon mode" << endl
 					  << "	-v: show version" << endl
 #ifdef USE_CONSOLEKIT
 					  << "	-s: start for systemd, disable consolekit support"
@@ -197,6 +207,9 @@ App::App(int argc, char ** argv)
 		exit(ERR_EXIT);
 	}
 #endif /* XNEST_DEBUG */
+
+	if (!configLoaded)
+		cfg.readConf(CFGFILE);
 }
 
 void App::Run()
@@ -211,9 +224,7 @@ void App::Run()
 	}
 #endif
 
-	/* Read configuration and theme */
-	cfg = new Cfg;
-	cfg->readConf(CFGFILE);
+	/* Read theme */
 	string themebase = "";
 	string themefile = "";
 	string themedir = "";
@@ -222,7 +233,7 @@ void App::Run()
 		themeName = testtheme;
 	} else {
 		themebase = string(THEMESDIR) + "/";
-		themeName = cfg->getOption("current_theme");
+		themeName = cfg.getOption("current_theme");
 		string::size_type pos;
 		if ((pos = themeName.find(",")) != string::npos) {
 			/* input is a set */
@@ -248,7 +259,7 @@ void App::Run()
 	while (!loaded) {
 		themedir = themebase + themeName;
 		themefile = themedir + THEMESFILE;
-		if (!cfg->readConf(themefile)) {
+		if (!cfg.readConf(themefile)) {
 			if (themeName == "default") {
 				logStream << APPNAME << ": Failed to open default theme file "
 						  << themefile << endl;
@@ -278,7 +289,7 @@ void App::Run()
 		signal(SIGUSR1, User1Signal);
 
 #ifndef XNEST_DEBUG
-		if (!force_nodaemon && cfg->getOption("daemon") == "yes") {
+		if (!force_nodaemon && cfg.getOption("daemon") == "yes") {
 			daemonmode = true;
 		}
 
@@ -299,8 +310,8 @@ void App::Run()
 		StartServer();
 
 		// Run setup script
-		if (cfg->getOption("xsetup_script") != "") {
-			const char * xsetup_cmd = cfg->getOption("xsetup_script").c_str();
+		if (cfg.getOption("xsetup_script") != "") {
+			const char * xsetup_cmd = cfg.getOption("xsetup_script").c_str();
 			logStream << APPNAME << ": executing xsetup script '" << xsetup_cmd
 					  << "'" << endl;
 			system(xsetup_cmd);
@@ -342,14 +353,14 @@ void App::Run()
 	LoginPanel = new Panel(Dpy, Scr, Root, cfg, themedir, Panel::Mode_DM);
 	bool firstloop =
 		true; /* 1st time panel is shown (for automatic username) */
-	bool focuspass = cfg->getOption("focus_password") == "yes";
-	bool autologin = cfg->getOption("auto_login") == "yes";
+	bool focuspass = cfg.getOption("focus_password") == "yes";
+	bool autologin = cfg.getOption("auto_login") == "yes";
 
-	if (firstlogin && cfg->getOption("default_user") != "") {
-		LoginPanel->SetName(cfg->getOption("default_user"));
+	if (firstlogin && cfg.getOption("default_user") != "") {
+		LoginPanel->SetName(cfg.getOption("default_user"));
 #ifdef USE_PAM
 		pam.set_item(
-			PAM::Authenticator::User, cfg->getOption("default_user").c_str());
+			PAM::Authenticator::User, cfg.getOption("default_user").c_str());
 #endif
 		firstlogin = false;
 		if (autologin) {
@@ -358,7 +369,7 @@ void App::Run()
 	}
 
 	/* Set NumLock */
-	string numlock = cfg->getOption("numlock");
+	string numlock = cfg.getOption("numlock");
 	if (numlock == "on") {
 		NumLock::setOn(Dpy);
 	} else if (numlock == "off") {
@@ -386,8 +397,8 @@ void App::Run()
 
 		LoginPanel->Reset();
 
-		if (firstloop && cfg->getOption("default_user") != "")
-			LoginPanel->SetName(cfg->getOption("default_user"));
+		if (firstloop && cfg.getOption("default_user") != "")
+			LoginPanel->SetName(cfg.getOption("default_user"));
 
 		if (firstloop) {
 			LoginPanel->SwitchSession();
@@ -522,7 +533,7 @@ int App::GetServerPID() { return ServerPID; }
 /* Hide the cursor */
 void App::HideCursor()
 {
-	if (cfg->getOption("hidecursor") == "true") {
+	if (cfg.getOption("hidecursor") == "true") {
 		XColor black;
 		char cursordata[1];
 		Pixmap cursorpixmap;
@@ -586,7 +597,7 @@ void App::Login()
 		pam.setenv("SHELL", pw->pw_shell);
 		pam.setenv("USER", pw->pw_name);
 		pam.setenv("LOGNAME", pw->pw_name);
-		pam.setenv("PATH", cfg->getOption("default_path").c_str());
+		pam.setenv("PATH", cfg.getOption("default_path").c_str());
 		pam.setenv("DISPLAY", DisplayName);
 		pam.setenv("MAIL", maildir.c_str());
 		pam.setenv("XAUTHORITY", xauthority.c_str());
@@ -652,7 +663,7 @@ void App::Login()
 		child_env[n++] = StrConcat("USER=", pw->pw_name);
 		child_env[n++] = StrConcat("LOGNAME=", pw->pw_name);
 		child_env[n++] =
-			StrConcat("PATH=", cfg->getOption("default_path").c_str());
+			StrConcat("PATH=", cfg.getOption("default_path").c_str());
 		child_env[n++] = StrConcat("DISPLAY=", DisplayName);
 		child_env[n++] = StrConcat("MAIL=", maildir.c_str());
 		child_env[n++] = StrConcat("XAUTHORITY=", xauthority.c_str());
@@ -669,10 +680,10 @@ void App::Login()
 		/* Login process starts here */
 		SwitchUser Su(pw, cfg, DisplayName, child_env);
 		string session = LoginPanel->getSession();
-		string loginCommand = cfg->getOption("login_cmd");
+		string loginCommand = cfg.getOption("login_cmd");
 		replaceVariables(loginCommand, SESSION_VAR, session);
 		replaceVariables(loginCommand, THEME_VAR, themeName);
-		string sessStart = cfg->getOption("sessionstart_cmd");
+		string sessStart = cfg.getOption("sessionstart_cmd");
 		if (sessStart != "") {
 			replaceVariables(sessStart, USER_VAR, pw->pw_name);
 			system(sessStart.c_str());
@@ -697,7 +708,7 @@ void App::Login()
 		LoginPanel->Message("Failed to execute login command");
 		sleep(3);
 	} else {
-		string sessStop = cfg->getOption("sessionstop_cmd");
+		string sessStop = cfg.getOption("sessionstop_cmd");
 		if (sessStop != "") {
 			replaceVariables(sessStop, USER_VAR, pw->pw_name);
 			system(sessStop.c_str());
@@ -753,13 +764,13 @@ void App::Reboot()
 #endif
 
 	/* Write message */
-	LoginPanel->Message((char *)cfg->getOption("reboot_msg").c_str());
+	LoginPanel->Message((char *)cfg.getOption("reboot_msg").c_str());
 	sleep(3);
 
 	/* Stop server and reboot */
 	StopServer();
 	RemoveLock();
-	system(cfg->getOption("reboot_cmd").c_str());
+	system(cfg.getOption("reboot_cmd").c_str());
 	exit(OK_EXIT);
 }
 
@@ -774,20 +785,20 @@ void App::Halt()
 #endif
 
 	/* Write message */
-	LoginPanel->Message((char *)cfg->getOption("shutdown_msg").c_str());
+	LoginPanel->Message((char *)cfg.getOption("shutdown_msg").c_str());
 	sleep(3);
 
 	/* Stop server and halt */
 	StopServer();
 	RemoveLock();
-	system(cfg->getOption("halt_cmd").c_str());
+	system(cfg.getOption("halt_cmd").c_str());
 	exit(OK_EXIT);
 }
 
 void App::Suspend()
 {
 	sleep(1);
-	system(cfg->getOption("suspend_cmd").c_str());
+	system(cfg.getOption("suspend_cmd").c_str());
 }
 
 void App::Console()
@@ -802,7 +813,7 @@ void App::Console()
 		(XHeightOfScreen(ScreenOfDisplay(Dpy, Scr)) - (posy * 2)) / fonty;
 
 	/* Execute console */
-	const char * cmd = cfg->getOption("console_cmd").c_str();
+	const char * cmd = cfg.getOption("console_cmd").c_str();
 	char * tmp = new char[strlen(cmd) + 60];
 	sprintf(tmp, cmd, width, height, posx, posy, fontx, fonty);
 	system(tmp);
@@ -811,7 +822,7 @@ void App::Console()
 
 void App::Exit()
 {
-	if (cfg->getOption("allow_exit") == "false")
+	if (cfg.getOption("allow_exit") == "false")
 		return;
 #ifdef USE_PAM
 	try {
@@ -832,7 +843,6 @@ void App::Exit()
 		StopServer();
 		RemoveLock();
 	}
-	delete cfg;
 	exit(OK_EXIT);
 }
 
@@ -951,10 +961,10 @@ int App::StartServer()
 	int argc = 1, pos = 0, i;
 	static const int MAX_XSERVER_ARGS = 256;
 	static char * server[MAX_XSERVER_ARGS + 2] = {NULL};
-	server[0] = (char *)cfg->getOption("default_xserver").c_str();
-	string argOption = cfg->getOption("xserver_arguments");
+	server[0] = (char *)cfg.getOption("default_xserver").c_str();
+	string argOption = cfg.getOption("xserver_arguments");
 	/* Add mandatory -xauth option */
-	argOption = argOption + " -auth " + cfg->getOption("authfile");
+	argOption = argOption + " -auth " + cfg.getOption("authfile");
 	char * args = new char[argOption.length() + 2]; /* NULL plus vt */
 	strcpy(args, argOption.c_str());
 
@@ -1122,7 +1132,7 @@ void App::setBackground(const string & themedir)
 	}
 
 	if (loaded) {
-		string bgstyle = cfg->getOption("background_style");
+		string bgstyle = cfg.getOption("background_style");
 		if (bgstyle == "stretch") {
 			image->Resize(XWidthOfScreen(ScreenOfDisplay(Dpy, Scr)),
 				XHeightOfScreen(ScreenOfDisplay(Dpy, Scr)));
@@ -1130,12 +1140,12 @@ void App::setBackground(const string & themedir)
 			image->Tile(XWidthOfScreen(ScreenOfDisplay(Dpy, Scr)),
 				XHeightOfScreen(ScreenOfDisplay(Dpy, Scr)));
 		} else if (bgstyle == "center") {
-			string hexvalue = cfg->getOption("background_color");
+			string hexvalue = cfg.getOption("background_color");
 			hexvalue = hexvalue.substr(1, 6);
 			image->Center(XWidthOfScreen(ScreenOfDisplay(Dpy, Scr)),
 				XHeightOfScreen(ScreenOfDisplay(Dpy, Scr)), hexvalue.c_str());
 		} else { /* plain color or error */
-			string hexvalue = cfg->getOption("background_color");
+			string hexvalue = cfg.getOption("background_color");
 			hexvalue = hexvalue.substr(1, 6);
 			image->Center(XWidthOfScreen(ScreenOfDisplay(Dpy, Scr)),
 				XHeightOfScreen(ScreenOfDisplay(Dpy, Scr)), hexvalue.c_str());
@@ -1154,14 +1164,14 @@ void App::setBackground(const string & themedir)
 /* Check if there is a lockfile and a corresponding process */
 void App::GetLock()
 {
-	std::ifstream lockfile(cfg->getOption("lockfile").c_str());
+	std::ifstream lockfile(cfg.getOption("lockfile").c_str());
 	if (!lockfile) {
 		/* no lockfile present, create one */
 		std::ofstream lockfile(
-			cfg->getOption("lockfile").c_str(), ios_base::out);
+			cfg.getOption("lockfile").c_str(), ios_base::out);
 		if (!lockfile) {
 			logStream << APPNAME << ": Could not create lock file: "
-					  << cfg->getOption("lockfile").c_str() << std::endl;
+					  << cfg.getOption("lockfile").c_str() << std::endl;
 			exit(ERR_EXIT);
 		}
 		lockfile << getpid() << std::endl;
@@ -1184,10 +1194,10 @@ void App::GetLock()
 				logStream << APPNAME << ": Stale lockfile found, removing it"
 						  << std::endl;
 				std::ofstream lockfile(
-					cfg->getOption("lockfile").c_str(), ios_base::out);
+					cfg.getOption("lockfile").c_str(), ios_base::out);
 				if (!lockfile) {
 					logStream << APPNAME << ": Could not create new lock file: "
-							  << cfg->getOption("lockfile") << std::endl;
+							  << cfg.getOption("lockfile") << std::endl;
 					exit(ERR_EXIT);
 				}
 				lockfile << getpid() << std::endl;
@@ -1198,7 +1208,7 @@ void App::GetLock()
 }
 
 /* Remove lockfile and close logs */
-void App::RemoveLock() { remove(cfg->getOption("lockfile").c_str()); }
+void App::RemoveLock() { remove(cfg.getOption("lockfile").c_str()); }
 
 /* Get server start check flag. */
 bool App::isServerStarted() { return serverStarted; }
@@ -1206,9 +1216,9 @@ bool App::isServerStarted() { return serverStarted; }
 /* Redirect stdout and stderr to log file */
 void App::OpenLog()
 {
-	if (!logStream.openLog(cfg->getOption("logfile").c_str())) {
+	if (!logStream.openLog(cfg.getOption("logfile").c_str())) {
 		logStream << APPNAME << ": Could not accesss log file: "
-				  << cfg->getOption("logfile") << endl;
+				  << cfg.getOption("logfile") << endl;
 		RemoveLock();
 		exit(ERR_EXIT);
 	}
@@ -1286,10 +1296,10 @@ void App::CreateServerAuth()
 		mcookie[i + 3] = digits[hi >> 4];
 	}
 	/* reinitialize auth file */
-	authfile = cfg->getOption("authfile");
+	authfile = cfg.getOption("authfile");
 	remove(authfile.c_str());
 	putenv(StrConcat("XAUTHORITY=", authfile.c_str()));
-	Util::add_mcookie(mcookie, ":0", cfg->getOption("xauth_path"), authfile);
+	Util::add_mcookie(mcookie, ":0", cfg.getOption("xauth_path"), authfile);
 }
 
 char * App::StrConcat(const char * str1, const char * str2)
@@ -1302,10 +1312,10 @@ char * App::StrConcat(const char * str1, const char * str2)
 
 void App::UpdatePid()
 {
-	std::ofstream lockfile(cfg->getOption("lockfile").c_str(), ios_base::out);
+	std::ofstream lockfile(cfg.getOption("lockfile").c_str(), ios_base::out);
 	if (!lockfile) {
 		logStream << APPNAME << ": Could not update lock file: "
-				  << cfg->getOption("lockfile").c_str() << endl;
+				  << cfg.getOption("lockfile").c_str() << endl;
 		exit(ERR_EXIT);
 	}
 	lockfile << getpid() << endl;

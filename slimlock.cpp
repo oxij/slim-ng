@@ -50,7 +50,7 @@ void * RaiseWindow(void * data);
 Display * dpy;
 int scr;
 Window win, root;
-Cfg * cfg;
+Cfg cfg;
 Panel * loginPanel;
 string themeName = "";
 
@@ -106,15 +106,14 @@ int main(int argc, char ** argv)
 
 	unsigned int cfg_passwd_timeout;
 	// Read user's current theme
-	cfg = new Cfg;
-	cfg->readConf(CFGFILE);
-	cfg->readConf(SLIMLOCKCFG);
+	cfg.readConf(CFGFILE);
+	cfg.readConf(SLIMLOCKCFG);
 	string themebase = "";
 	string themefile = "";
 	string themedir = "";
 	themeName = "";
 	themebase = string(THEMESDIR) + "/";
-	themeName = cfg->getOption("current_theme");
+	themeName = cfg.getOption("current_theme");
 	string::size_type pos;
 	if ((pos = themeName.find(",")) != string::npos) {
 		themeName = findValidRandomTheme(themeName);
@@ -124,7 +123,7 @@ int main(int argc, char ** argv)
 	while (!loaded) {
 		themedir = themebase + themeName;
 		themefile = themedir + THEMESFILE;
-		if (!cfg->readConf(themefile)) {
+		if (!cfg.readConf(themefile)) {
 			if (themeName == "default") {
 				cerr << APPNAME << ": Failed to open default theme file "
 					 << themefile << endl;
@@ -181,7 +180,7 @@ int main(int argc, char ** argv)
 		die("PAM: %s\n", pam_strerror(pam_handle, ret));
 
 	// disable tty switching
-	if (cfg->getOption("tty_lock") == "1") {
+	if (cfg.getOption("tty_lock") == "1") {
 		if ((term = open("/dev/console", O_RDWR)) == -1)
 			perror("error opening console");
 
@@ -192,8 +191,8 @@ int main(int argc, char ** argv)
 	// Set up DPMS
 	unsigned int cfg_dpms_standby, cfg_dpms_off;
 	cfg_dpms_standby =
-		Cfg::string2int(cfg->getOption("dpms_standby_timeout").c_str());
-	cfg_dpms_off = Cfg::string2int(cfg->getOption("dpms_off_timeout").c_str());
+		Cfg::string2int(cfg.getOption("dpms_standby_timeout").c_str());
+	cfg_dpms_off = Cfg::string2int(cfg.getOption("dpms_off_timeout").c_str());
 	using_dpms = DPMSCapable(dpy) && (cfg_dpms_standby > 0);
 	if (using_dpms) {
 		DPMSGetTimeouts(dpy, &dpms_standby, &dpms_suspend, &dpms_off);
@@ -207,7 +206,7 @@ int main(int argc, char ** argv)
 
 	// Get password timeout
 	cfg_passwd_timeout =
-		Cfg::string2int(cfg->getOption("wrong_passwd_timeout").c_str());
+		Cfg::string2int(cfg.getOption("wrong_passwd_timeout").c_str());
 	// Let's just make sure it has a sane value
 	cfg_passwd_timeout = cfg_passwd_timeout > 60 ? 60 : cfg_passwd_timeout;
 
@@ -244,7 +243,7 @@ int main(int argc, char ** argv)
 	flock(lock_file, LOCK_UN);
 	close(lock_file);
 
-	if (cfg->getOption("tty_lock") == "1") {
+	if (cfg.getOption("tty_lock") == "1") {
 		if ((ioctl(term, VT_UNLOCKSWITCH)) == -1) {
 			perror("error unlocking console");
 		}
@@ -256,7 +255,7 @@ int main(int argc, char ** argv)
 
 void HideCursor()
 {
-	if (cfg->getOption("hidecursor") == "true") {
+	if (cfg.getOption("hidecursor") == "true") {
 		XColor black;
 		char cursordata[1];
 		Pixmap cursorpixmap;
@@ -323,7 +322,7 @@ string findValidRandomTheme(const string & set)
 		int sel = Util::random() % themes.size();
 
 		name = Cfg::Trim(themes[sel]);
-		themefile = string(THEMESDIR) + "/" + name + THEMESFILE;
+		themefile = cfg.getOption("themes_dir") + "/" + name + THEMESFILE;
 		if (stat(themefile.c_str(), &buf) != 0) {
 			themes.erase(find(themes.begin(), themes.end(), name));
 			cerr << APPNAME << ": Invalid theme in config: " << name << endl;
